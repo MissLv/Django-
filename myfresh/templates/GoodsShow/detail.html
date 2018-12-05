@@ -1,0 +1,266 @@
+{% extends 'g_base_top_centersearch.html' %}
+{% block header %}
+<title>天天生鲜-商品详情</title>
+<script type="text/javascript">
+        $(function(){
+{#刷新页面上购物车的数量            #}
+             $.get('/GoodsShow/getsession/', function (session)
+             {
+                if (session.uname != null)
+                {
+                    $.get('/GoodsShow/send/', {uname: session.uname, goodsId:session.goodsId , num: 0},
+                            function (data) { $('.goods_count').html(data.count); });
+                }
+            });
+
+
+            var  src=window.location.href;
+            var  goodsId=src.match(/\/GoodsShow\/detail(\d+).html$/)[1];
+
+
+{# 最初总价           #}
+             $('.total em').html(
+                     parseInt($('.num_show').val()) *
+                     parseFloat($('.show_pirze em').html()).toFixed(2));
+
+{# 点击'+'#}
+            $('.add').click(function(){
+
+{# 数量+1#}
+                $('.num_show').attr('value',function(){
+                return  parseInt($(this).val())+1});
+
+                 var num=$('.num_show').attr('value');
+
+{#总价变化#}
+                 $('.total em').html(
+                         (parseInt(num) * parseFloat($('.show_pirze em').html()).toFixed(2))
+                );
+
+ {# 立即购买 的链接改变 #}
+                $('.buy_btn ').html(" <a href='/FreshOrder/?id=" +goodsId+ "&num=" +num+ "'   class='buy_btn'>立即购买</a>");
+
+
+            });
+
+{# 点击'-'#}
+            $('.minus').click(function(){
+{# 数量+1#}
+                $('.num_show').attr('value',function(){
+                    if (parseInt($(this).val())>1){
+                        return  parseInt($(this).val())-1
+                    }
+                });
+
+                var num=$('.num_show').attr('value');
+
+{#总价变化#}
+                 $('.total em').html(
+                         (parseInt(num) * parseFloat($('.show_pirze em').html()).toFixed(2))
+                );
+{# 立即购买 的链接改变 #}
+                 $('.buy_btn ').html(" <a href='/FreshOrder/?id=" +goodsId+ "&num=" +num+ "'   class='buy_btn'>立即购买</a>");
+
+
+            });
+
+
+{#点击添加购物车 #}
+$('#add_cart').click(function(){
+        $.get('/GoodsShow/getsession/', function (session) {
+            var num = $('.num_show').val();
+             if (session.uname !=null)
+             {
+                 $.get('/GoodsShow/send/', {'uname': session.uname, 'goodsId': goodsId, 'num': num},
+                  function(data){ $('.goods_count').html(data.count); });
+
+             }
+             else
+            {
+                window.location.href = '/usermode/login/';
+            }
+          });
+    });
+
+{#点击立即购买 #}
+$('.buy_btn').click(function(){
+        $.get('/GoodsShow/getsession/', function (session) {
+             if (session.uname ==null)
+             {
+                window.location.href = '/usermode/login/';
+             }
+
+          });
+    });
+
+
+
+ });
+ </script>
+
+{% endblock header %}
+{% block content_without_lsc %}
+	<div class="navbar_con">
+		<div class="navbar clearfix">
+			<div class="subnav_con fl">
+				<h1>全部商品分类</h1>
+				<span></span>
+				<ul class="subnav">
+					<li><a href="/GoodsShow/list1/1" class="fruit">新鲜水果</a></li>
+					<li><a href="/GoodsShow/list2/1" class="seafood">海鲜水产</a></li>
+					<li><a href="/GoodsShow/list3/1" class="meet">猪牛羊肉</a></li>
+					<li><a href="/GoodsShow/list4/1" class="egg">禽类蛋品</a></li>
+					<li><a href="/GoodsShow/list5/1" class="vegetables">新鲜蔬菜</a></li>
+					<li><a href="/GoodsShow/list6/1" class="ice">速冻食品</a></li>
+				</ul>
+			</div>
+			<ul class="navlist fl">
+				<li><a href="/GoodsShow/">首页</a></li>
+				<li class="interval">|</li>
+				<li><a href="">手机生鲜</a></li>
+				<li class="interval">|</li>
+				<li><a href="">抽奖</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="breadcrumb">
+		<a href="/GoodsShow/">全部分类</a>
+		<span>></span>
+
+        <a href="/GoodsShow/list{{goods.gtype_id }}/1">{{goods.gtype.title }}</a>
+		<span>></span>
+		<a href="#">商品详情</a>
+	</div>
+
+	<div class="goods_detail_con clearfix">
+		<div class="goods_detail_pic fl"><img src={{ goods.gpic }}></div>
+
+		<div class="goods_detail_list fr">
+			<h3>{{ goods.gtitle }}</h3>
+			<p>{{ goods.gdesc }}</p>
+			<div class="prize_bar">
+				<span class="show_pirze">¥<em>{{ goods.gprice }}</em></span>
+				<span class="show_unit">单  位：{{ goods.gunit }}元</span>
+			</div>
+			<div class="goods_num clearfix">
+				<div class="num_name fl">数 量：</div>
+				<div class="num_add fl">
+					<input type="text" class="num_show fl" value="1">
+					<a href="javascript:;" class="add fr">+</a>
+					<a href="javascript:;" class="minus fr">-</a>
+				</div>
+			</div>
+			<div class="total">总价：<em>16.80元</em></div>
+			<div class="operate_btn">
+				<a href="/FreshOrder/?id={{ goods.id }}&num=1" class="buy_btn">立即购买</a>
+				<a  class="add_cart" id="add_cart">加入购物车</a>
+			</div>
+		</div>
+	</div>
+
+	<div class="main_wrap clearfix">
+		<div class="l_wrap fl clearfix">
+			<div class="new_goods">
+				<h3>新品推荐</h3>
+				<ul>
+                    {%for goods in Rec %}
+					<li>
+						<a href="/GoodsShow/detail{{ goods.id }}.html"><img src={{ goods.gpic }}></a>
+						<h4><a href="/GoodsShow/detail{{ goods.id }}.html">{{ goods.gtitle }}</a></h4>
+						<div class="prize">￥{{ goods.gprice }}</div>
+					</li>
+                    {% endfor %}
+
+				</ul>
+			</div>
+		</div>
+
+		<div class="r_wrap fr clearfix">
+			<ul class="detail_tab clearfix">
+				<li class="active">商品介绍</li>
+				<li>评论</li>
+			</ul>
+
+			<div class="tab_content">
+				<dl>
+					<dt>商品详情：</dt>
+					<dd>{{ goods.gdetail }} </dd>
+				</dl>
+			</div>
+            <div id="commentInfo" class="tab_content" style="display: none">
+                <dl id="addcomment">
+                    <dt>用户评论:</dt>
+                    <dd id="wu">当前无任何评论!</dd>
+                </dl>
+            </div>
+            <div style="text-align: center">
+                <a href="#" id="FED"> <input type="button" value="查看更多>>" style="display: none;width: 940px;height: 30px;background-color: white;border: 0px" id="commor"></a>
+            </div>
+		</div>
+	</div>
+ {% endblock content_without_lsc %}
+{% block zzj %}
+
+	<div class="add_jump"></div>
+
+	<script type="text/javascript">
+		var $add_x = $('#add_cart').offset().top;
+		var $add_y = $('#add_cart').offset().left;
+
+		var $to_x = $('#show_count').offset().top;
+		var $to_y = $('#show_count').offset().left;
+
+		$(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'})
+		$('#add_cart').click(function(){
+			$(".add_jump").stop().animate({
+				'left': $to_y+7,
+				'top': $to_x+7},
+				"fast", function() {
+					$(".add_jump").fadeOut('fast',function(){
+						$('#show_count').html(2);
+					});
+
+			});
+		})
+	</script>
+    <script src="/static/js/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            var hrefpath=window.location.href;
+            var re=new RegExp(/\/GoodsShow\/detail(\d+).html/);
+            var num=hrefpath.match(re)[1];
+            $("#FED").attr('href','/commentInfo'+num);
+            $("#comment").click(function(){
+                $("#addcomment").empty()
+                $("#addcomment").append("<dt>用户评论:</dt>")
+                $.get("/comment"+num,function(dic){
+                    var i=0;
+                    $.each(dic.Nr,function (index, item) {
+                        $("#wu").hide()
+                        if(dic.Nr.length>3){
+                            $("#addcomment").append("<dd style='font-size: 23px;display: block; width: 100%;height: 100px;text-align:left;line-height: 100px'>"+item+"</dd>")
+                            i++;
+                            if(i>=3){
+                                $("#commor").show()
+                                return false;
+                            }
+                        }
+                        else{
+                            $("#addcomment").append("<dd style='font-size: 23px;display: block; width: 100%;height: 100px;text-align:left;line-height: 100px'>"+item+"</dd>")
+                         }
+                })
+
+
+                })
+                $(".tab_content").hide()
+                $("#commentInfo").show()
+            })
+            $(".active").click(function(){
+                $(".tab_content").show()
+                $("#commentInfo").hide()
+                $("#commor").hide()
+            })
+        })
+    </script>
+{% endblock zzj %}

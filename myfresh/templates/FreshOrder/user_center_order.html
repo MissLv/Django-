@@ -1,0 +1,78 @@
+{% extends 'g_base_top_rightsearch.html' %}
+
+{% block right_search_page_center %}
+
+	<div class="main_con clearfix">
+		<div class="left_menu_con clearfix">
+			<h3>用户中心</h3>
+			<ul>
+				<li><a href="/usermode/user_center_info/">· 个人信息</a></li>
+				<li><a href="user_center_order.html" class="active">· 全部订单</a></li>
+				<li><a href="/usermode/user_center_site/">· 收货地址</a></li>
+			</ul>
+		</div>
+		<div class="right_content clearfix" id="total_order">
+				<h3 class="common_title2">全部订单</h3>
+            {% for order in page %}
+				<ul class="order_list_th w978 clearfix">
+					<li class="col01">{{ order.otime }}</li>
+					<li class="col02">订单号：{{ order.id }}</li>
+                    {% if order.state == 1 %}
+					<li class="col02 stress">已支付</li>
+                    {% else %}
+                    <li class="col02 stress">未支付</li>
+                    {% endif %}
+				</ul>
+
+
+				<table class="order_list_table w980">
+					<tbody>
+						<tr>
+							<td width="55%">
+                                {% for list in order.orderdetailinfo_set.all %}
+								<ul class="order_goods_list clearfix">
+									<li class="col01"><img src="{{ list.goods.gpic }}"></li>
+									<li class="col02">{{ list.goods.gtitle }}<em>11.80元/500g</em></li>
+									<li class="col03">{{ list.count }}</li>
+									<li class="col04">{{ list.price }}元</li>
+								</ul>
+								{% endfor %}
+							</td>
+							<td width="15%">{{ order.ototal }}元</td>
+                            {% if order.state == 1 %}
+                            <td width="15%">已付款</td>
+							<td width="15%"><a href="#" class="oper_btn">查看物流</a></td>
+                            {% else %}
+							<td width="15%">待付款</td>
+							<td width="15%"><a href="#" class="oper_btn">去付款</a></td>
+                            {% endif %}
+						</tr>
+					</tbody>
+				</table>
+            {% endfor %}
+
+
+				<div class="pagenation">
+                    {% if page.has_previous %}
+                        <a href="{{ page.previous_page_number }}">上一页</a>
+                    {% endif %}
+                    {%for index in page.paginator.page_range  %}
+                        {% if index == page.number %}
+                         <a href="#">{{ index }}</a>
+                        {% else %}
+
+					    <a href="{{ index }}">{{ index }}</a>
+
+                        {% endif %}
+                    {% endfor %}
+                    {% if page.has_next %}
+                        <a href="{{ page.next_page_number }}">下一页></a>
+                    {% endif %}]
+				</div>
+
+
+		</div>
+	</div>
+
+
+{% endblock right_search_page_center %}
